@@ -6,3 +6,7 @@
 *.pdb
 *.obj
 *.opensdf
+*.obj
+*.pdb
+*.exe
+*.sdf

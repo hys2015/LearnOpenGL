@@ -96,11 +96,20 @@ int main()
     glDeleteShader(fragmentShader);
 
     //deal with vertices
+
     GLfloat vertices[] = {
+        /*
         0.5f, 0.5f, 0.0f,  // Top Right
         0.5f, -0.5f, 0.0f,  // Bottom Right
         -0.5f, -0.5f, 0.0f,  // Bottom Left
         -0.5f, 0.5f, 0.0f   // Top Left 
+        */
+        -0.5f, 0.5f, 0.0f,
+        0.0f, 0.5f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f
     };
     GLuint indices[] = {
         0,1,3,
@@ -146,7 +155,8 @@ int main()
        // glDrawArrays(GL_TRIANGLES, 0, 3);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
         //swap buffer avoid flert-prob
