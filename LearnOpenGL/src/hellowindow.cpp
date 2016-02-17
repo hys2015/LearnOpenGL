@@ -8,26 +8,19 @@
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
-//vertcies
-GLfloat vertices[] = {
-    0.0f, 0.5f, 0.0f,
-   -0.5f, 0.0f, 0.0f,
-    0.0f, 0.5f, 0.0f
-};
-
 //shaders
 const GLchar* vertexshadersource = "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n "
 "void main()\n"
 "{\n"
 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"}\0";
+"}\n\0";
 
 const GLchar* fragmentShadersource = "#version 330 core\n"
 "out vec4 color;\n"
 "void main(){\n"
-"color = vec4(0.5, 0.0, 0.0, 1.0);\n"
-"}\0"
+"color = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+"}\n\0"
 ;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -99,6 +92,29 @@ int main()
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINK FAILED:\n" << infoLog << std::endl;
     }
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    //deal with vertices
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, 0.0f, // Left  
+        0.5f, -0.5f, 0.0f, // Right 
+        0.0f, 0.5f, 0.0f  // Top   
+    };
+    GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+        //unbind VBO VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
 
     
 
@@ -107,29 +123,22 @@ int main()
         glfwPollEvents();
 
         //rendering command
-
-        //deal with vertices
-        GLuint VBO;
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3, (GLvoid*)0);
-        glEnableVertexAttribArray(0);
+        glClearColor(0.5f, 0.3f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         
         glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(0);
 
         //swap buffer avoid flert-prob
         glfwSwapBuffers(window);
     }
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
-
-
     return 0;
 }
 
