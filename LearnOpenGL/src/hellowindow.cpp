@@ -97,16 +97,17 @@ int main()
 
     //deal with vertices
 
-    GLfloat vertices[] = {
+    GLfloat vertices1[] = {
         /*
         0.5f, 0.5f, 0.0f,  // Top Right
         0.5f, -0.5f, 0.0f,  // Bottom Right
         -0.5f, -0.5f, 0.0f,  // Bottom Left
-        -0.5f, 0.5f, 0.0f   // Top Left 
+        -0.5f, 0.5f, 0.0f   // Top Left
         */
         -0.5f, 0.5f, 0.0f,
         0.0f, 0.5f, 0.0f,
-        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f };
+    GLfloat vertices2[] = {
         0.0f, 0.0f, 0.0f,
         0.0f, 0.5f, 0.0f,
         0.5f, 0.5f, 0.0f
@@ -121,10 +122,11 @@ int main()
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    
+       
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+
         
     GLuint EBO;
     glGenBuffers(1, &EBO);
@@ -137,9 +139,21 @@ int main()
         //unbind VBO VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-  
 
+    GLuint aVBO, aVAO;
+    glGenVertexArrays(1, &aVAO);
+    glGenBuffers(1, &aVBO);
 
+    glBindVertexArray(aVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, aVBO);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     
 
     while (!glfwWindowShouldClose(window))
@@ -156,7 +170,13 @@ int main()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(aVAO);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
         //swap buffer avoid flert-prob
