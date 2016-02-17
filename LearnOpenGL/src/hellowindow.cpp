@@ -23,6 +23,13 @@ const GLchar* fragmentShadersource = "#version 330 core\n"
 "}\n\0"
 ;
 
+const GLchar* newFragmentShaderSource = "#version 330 core\n"
+"out vec4 color; \n"
+"void main(){\n"
+"color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+"}\n\0"
+;
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main()
@@ -80,7 +87,19 @@ int main()
         std::cout << "ERROR::FRAGMENT::SHADER::COMPILATION FAILED:\n" << infoLog << std::endl;
     }
 
-    GLuint shaderProgram;
+    GLuint newFragmentShader;
+    newFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(newFragmentShader, 1, &newFragmentShaderSource, NULL);
+    glCompileShader(newFragmentShader);
+    //compile info
+    glGetShaderiv(newFragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(newFragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::newFRAGMENT::SHADER::COMPILATION FAILED:\n" << infoLog << std::endl;
+    }
+
+    GLuint shaderProgram, newShaderProgram;
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -92,8 +111,23 @@ int main()
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINK FAILED:\n" << infoLog << std::endl;
     }
+
+    newShaderProgram = glCreateProgram();
+    glAttachShader(newShaderProgram, vertexShader);
+    glAttachShader(newShaderProgram, newFragmentShader);
+    glLinkProgram(newShaderProgram);
+
+    glGetProgramiv(newShaderProgram, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(newShaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::newSHADER::PROGRAM::LINK FAILED:\n" << infoLog << std::endl;
+    }
+
+
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(newFragmentShader);
 
     //deal with vertices
 
@@ -172,6 +206,7 @@ int main()
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(aVAO);
+        glUseProgram(newShaderProgram);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
