@@ -11,22 +11,19 @@ const GLint WIDTH = 800, HEIGHT = 600;
 //shaders
 const GLchar* vertexshadersource = "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n "
+"out vec4 vertexColor;\n"
 "void main()\n"
 "{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+//swizzling
+"vertexColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);\n"
+"gl_Position = vec4(position, 1.0);\n"
 "}\n\0";
 
 const GLchar* fragmentShadersource = "#version 330 core\n"
+"in vec4 vertexColor;\n"
 "out vec4 color;\n"
 "void main(){\n"
-"color = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
-"}\n\0"
-;
-
-const GLchar* newFragmentShaderSource = "#version 330 core\n"
-"out vec4 color; \n"
-"void main(){\n"
-"color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+"color = vertexColor;\n"
 "}\n\0"
 ;
 
@@ -87,19 +84,8 @@ int main()
         std::cout << "ERROR::FRAGMENT::SHADER::COMPILATION FAILED:\n" << infoLog << std::endl;
     }
 
-    GLuint newFragmentShader;
-    newFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(newFragmentShader, 1, &newFragmentShaderSource, NULL);
-    glCompileShader(newFragmentShader);
-    //compile info
-    glGetShaderiv(newFragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(newFragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::newFRAGMENT::SHADER::COMPILATION FAILED:\n" << infoLog << std::endl;
-    }
-
-    GLuint shaderProgram, newShaderProgram;
+   
+    GLuint shaderProgram;
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -112,22 +98,9 @@ int main()
         std::cout << "ERROR::SHADER::PROGRAM::LINK FAILED:\n" << infoLog << std::endl;
     }
 
-    newShaderProgram = glCreateProgram();
-    glAttachShader(newShaderProgram, vertexShader);
-    glAttachShader(newShaderProgram, newFragmentShader);
-    glLinkProgram(newShaderProgram);
-
-    glGetProgramiv(newShaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(newShaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::newSHADER::PROGRAM::LINK FAILED:\n" << infoLog << std::endl;
-    }
-
-
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    glDeleteShader(newFragmentShader);
+
 
     //deal with vertices
 
@@ -141,11 +114,6 @@ int main()
         -0.5f, 0.5f, 0.0f,
         0.0f, 0.5f, 0.0f,
         0.0f, 0.0f, 0.0f };
-    GLfloat vertices2[] = {
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f
-    };
     GLuint indices[] = {
         0,1,3,
         1,2,3
@@ -174,21 +142,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    GLuint aVBO, aVAO;
-    glGenVertexArrays(1, &aVAO);
-    glGenBuffers(1, &aVBO);
-
-    glBindVertexArray(aVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, aVBO);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    
 
     while (!glfwWindowShouldClose(window))
     {
@@ -201,15 +154,8 @@ int main()
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(aVAO);
-        glUseProgram(newShaderProgram);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        //glPolyMode(GL_FRONT_AND_BACK, GL_FILL);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
