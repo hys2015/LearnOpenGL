@@ -11,19 +11,18 @@ const GLint WIDTH = 800, HEIGHT = 600;
 //shaders
 const GLchar* vertexshadersource = "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n "
-"out vec4 vertexColor;\n"
 "void main()\n"
 "{\n"
 //swizzling
-"vertexColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);\n"
 "gl_Position = vec4(position, 1.0);\n"
 "}\n\0";
 
 const GLchar* fragmentShadersource = "#version 330 core\n"
-"in vec4 vertexColor;\n"
 "out vec4 color;\n"
+//uniform var
+"uniform vec4 myColor;\n"
 "void main(){\n"
-"color = vertexColor;\n"
+"color = myColor;\n"
 "}\n\0"
 ;
 
@@ -150,8 +149,15 @@ int main()
         //rendering command
         glClearColor(0.5f, 0.3f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        //uniform var
+        GLfloat nowtime = glfwGetTime();
+        GLfloat blueValue = (sin(nowtime) / 2) + 0.5;
+        GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "myColor");
         
         glUseProgram(shaderProgram);
+
+        glUniform4f(vertexColorLocation, 0.0f, 0.0f, blueValue, 1.0f);
+
         glBindVertexArray(VAO);
        // glDrawArrays(GL_TRIANGLES, 0, 3);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
