@@ -76,9 +76,15 @@
     <ClInclude Include="include\GL\glew.h" />
     <ClInclude Include="include\GL\glxew.h" />
     <ClInclude Include="include\GL\wglew.h" />
+    <ClInclude Include="include\shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\hellowindow.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fragment.fshader" />
+    <None Include="shaders\vertexShader.vshader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
