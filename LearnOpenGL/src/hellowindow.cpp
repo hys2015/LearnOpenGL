@@ -11,18 +11,22 @@ const GLint WIDTH = 800, HEIGHT = 600;
 //shaders
 const GLchar* vertexshadersource = "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n "
+"layout (location = 1) in vec3 myColor;\n"
+"out vec4 fColor;"
 "void main()\n"
 "{\n"
 //swizzling
-"gl_Position = vec4(position, 1.0);\n"
+"fColor = vec4( myColor, 1.0f);\n"
+"gl_Position = vec4(position, 1.0f);\n"
 "}\n\0";
 
 const GLchar* fragmentShadersource = "#version 330 core\n"
 "out vec4 color;\n"
 //uniform var
+"in vec4 fColor;\n"
 "uniform vec4 myColor;\n"
 "void main(){\n"
-"color = myColor;\n"
+"color = fColor;\n"
 "}\n\0"
 ;
 
@@ -110,9 +114,10 @@ int main()
         -0.5f, -0.5f, 0.0f,  // Bottom Left
         -0.5f, 0.5f, 0.0f   // Top Left
         */
-        -0.5f, 0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f,
-        0.0f, 0.0f, 0.0f };
+        -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
+    };
     GLuint indices[] = {
         0,1,3,
         1,2,3
@@ -135,8 +140,10 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);  /**** MUST NOT have this line!!! ****/
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
         //unbind VBO VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -149,17 +156,20 @@ int main()
         //rendering command
         glClearColor(0.5f, 0.3f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        /*
         //uniform var
         GLfloat nowtime = glfwGetTime();
         GLfloat blueValue = (sin(nowtime) / 2) + 0.5;
         GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "myColor");
+        //after useprogram
+        glUniform4f(vertexColorLocation, 0.0f, 0.0f, blueValue, 1.0f);
+        */
         
         glUseProgram(shaderProgram);
 
-        glUniform4f(vertexColorLocation, 0.0f, 0.0f, blueValue, 1.0f);
 
         glBindVertexArray(VAO);
-       // glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
