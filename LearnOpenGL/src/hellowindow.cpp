@@ -13,6 +13,8 @@
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
+GLfloat g_mixrate = 0.5;
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main()
@@ -52,11 +54,17 @@ int main()
     //deal with vertices
     GLfloat vertices1[] = {
         //vertices         //colors          //texture coords
-         0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-         0.5f,-0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,-0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
+         0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 2.0f, 2.0f,
+         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 2.0f
     };
+    /*
+        0.55f, 0.55f,
+        0.55f, 0.45f,
+        0.45f, 0.45f,
+        0.45f, 0.55f
+    */
     GLuint indices[] = {
         0,1,3,
         1,2,3
@@ -97,8 +105,8 @@ int main()
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	// Set texture wrapping to GL_REPEAT
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // Set texture filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -141,6 +149,9 @@ int main()
         textLocation = glGetUniformLocation(shader.ProgramID, "ourTexture2");
         glUniform1i(textLocation, 1);
 
+        g_mixrate = sin(glfwGetTime() / 2) + 0.5;
+        glUniform1f(glGetUniformLocation(shader.ProgramID, "mixrate"), g_mixrate);
+
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -164,8 +175,25 @@ int main()
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     std::cout << key << std::endl;
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GL_TRUE);
+    if (action == GLFW_PRESS){
+        switch(key)
+        {
+        case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+        case GLFW_KEY_UP:
+        case GLFW_KEY_W:
+            if (g_mixrate < 1.0){
+                g_mixrate += 0.1;
+            }
+            break;
+        case GLFW_KEY_DOWN:
+        case GLFW_KEY_S:
+            if (g_mixrate > 0.0){
+                g_mixrate -= 0.1;
+            }
+            break;
+        default:;
+        }
     }
 }
