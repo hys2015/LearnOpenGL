@@ -45,16 +45,7 @@ int main()
 
     Shader shader = Shader("shaders\\vertexShader.vshader", "shaders\\fragment.fshader");
 
-    //Load Texture
-    GLint width, height;
-    unsigned char* image = SOIL_load_image("src/container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,  image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    
 
     
 
@@ -100,6 +91,37 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    //Load Texture
+    GLint width, height;
+    unsigned char* image = SOIL_load_image("src/container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GLuint texture_2;
+    glGenTextures(1, &texture_2);
+    glBindTexture(GL_TEXTURE_2D, texture_2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    image = SOIL_load_image("src/awesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -108,18 +130,17 @@ int main()
         //rendering command
         glClearColor(0.5f, 0.3f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        /*
-        */
-        //uniform var
-        GLfloat nowtime = glfwGetTime();
-        GLfloat blueValue = (sin(nowtime) / 2) + 0.5;
-        GLint offsetValueLocation = glGetUniformLocation(shader.ProgramID, "offsetValue");
         
         shader.Use();
-        //after useprogram
-        //glUniform1f(offsetValueLocation, 1.0f);
-
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
+        GLuint textLocation = glGetUniformLocation(shader.ProgramID, "ourTexture");
+        glUniform1i(textLocation, 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture_2);
+        textLocation = glGetUniformLocation(shader.ProgramID, "ourTexture2");
+        glUniform1i(textLocation, 1);
+
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

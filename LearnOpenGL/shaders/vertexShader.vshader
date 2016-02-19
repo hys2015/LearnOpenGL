@@ -9,6 +9,6 @@ out vec2 TextCoord;
 
 void main(){
 	gl_Position = vec4(position.xyz, 1.0f);
-	myColor = vec4(position, 1.0f);
+	myColor = vec4(mColor, 1.0f);
 	TextCoord = textCoord;
 }
