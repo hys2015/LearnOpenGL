@@ -5,6 +5,10 @@
 #include <shader.h>
 #include <SOIL/SOIL.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <GL/glew.h>
 //GLFW
 #include <GLFW/glfw3.h>
@@ -14,6 +18,8 @@
 const GLint WIDTH = 800, HEIGHT = 600;
 
 GLfloat g_mixrate = 0.5;
+GLdouble oldtime;
+GLint nowtime;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -130,6 +136,9 @@ int main()
     SOIL_free_image_data(image);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    glm::mat4 trans;
+    trans = glm::rotate(trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
     while (!glfwWindowShouldClose(window))
     {
@@ -149,10 +158,20 @@ int main()
         textLocation = glGetUniformLocation(shader.ProgramID, "ourTexture2");
         glUniform1i(textLocation, 1);
 
-        g_mixrate = sin(glfwGetTime() / 2) + 0.5;
+        g_mixrate = sin(glfwGetTime())/2 + 0.5;
         glUniform1f(glGetUniformLocation(shader.ProgramID, "mixrate"), g_mixrate);
-
+        GLfloat angle = glm::radians(0.0f);
+        nowtime = glfwGetTime();
+        if ((int)nowtime != oldtime){
+            angle = glm::radians(-6.0f);
+        }
+        else {
+            angle = 0.0f;
+        }
+            trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "trans"),1 ,GL_FALSE, glm::value_ptr(trans));
         glBindVertexArray(VAO);
+        oldtime = (int)nowtime;
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
