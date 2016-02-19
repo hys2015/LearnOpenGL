@@ -93,15 +93,15 @@ int main()
         glClearColor(0.5f, 0.3f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         /*
+        */
         //uniform var
         GLfloat nowtime = glfwGetTime();
         GLfloat blueValue = (sin(nowtime) / 2) + 0.5;
-        GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "myColor");
-        //after useprogram
-        glUniform4f(vertexColorLocation, 0.0f, 0.0f, blueValue, 1.0f);
-        */
+        GLint offsetValueLocation = glGetUniformLocation(shader.ProgramID, "offsetValue");
         
         shader.Use();
+        //after useprogram
+        glUniform3f(offsetValueLocation, 1.0f, 0.0f, 0.0f);
 
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
