@@ -53,4 +53,9 @@
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\container.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
