@@ -101,7 +101,7 @@ int main()
         
         shader.Use();
         //after useprogram
-        glUniform3f(offsetValueLocation, 1.0f, 0.0f, 0.0f);
+        //glUniform1f(offsetValueLocation, 1.0f);
 
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
