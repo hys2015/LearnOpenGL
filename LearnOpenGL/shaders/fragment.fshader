@@ -11,6 +11,6 @@ uniform float mixrate;
 out vec4 color;
 
 void main(){
-	TextCoord2 = vec2(TextCoord.x, 1.0f - TextCoord.y);
+	TextCoord2 = vec2(1.0f - TextCoord.x, 1.0f - TextCoord.y);
 	color = mix(texture(ourTexture, TextCoord), texture(ourTexture2, TextCoord2), mixrate);
 }
