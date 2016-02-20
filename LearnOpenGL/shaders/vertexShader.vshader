@@ -5,11 +5,13 @@ layout (location = 2) in vec2 textCoord;
 
 out vec4 myColor;
 out vec2 TextCoord;
-uniform mat4 trans;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 
 void main(){
-	gl_Position = trans * vec4(position.xyz, 1.0f);
+	gl_Position = projection * view * model * vec4(position.xyz, 1.0f);
 	myColor = vec4(mColor, 1.0f);
 	TextCoord = textCoord;
 }
