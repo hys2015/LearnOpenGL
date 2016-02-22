@@ -21,14 +21,25 @@ GLfloat g_mixrate = 0.5;
 GLdouble oldtime;
 GLint nowtime;
 
+//camera variable
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool keys[1024];
 
-void doMovement();
+//smooth the walkaround
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
 
+//mouse related variable
+GLdouble lastX = 400.0f, lastY = 300.0f;
+GLfloat pitch = 0.0f , yaw = -90.0f;        //initial case unforgivable 
+GLboolean firstMouse = true;
+
+//functions declaration
+void doMovement();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xPos, double yPos);
 
 int main()
 {
@@ -48,6 +59,9 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    //register mouse callback funtion 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
@@ -208,6 +222,10 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastTime;
+        lastTime = currentFrame;
+
         glfwPollEvents();
         doMovement();
         //rendering command
@@ -308,4 +326,38 @@ void doMovement(){
     if (keys[GLFW_KEY_D]){
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
+}
+
+void mouse_callback(GLFWwindow* window, double xPos, double yPos){
+    if (firstMouse){
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+
+    GLfloat xoffset = xPos - lastX;
+    GLfloat yoffset = lastY - yPos; // reserved since y-coordinates range from bottom to top
+    lastX = xPos;
+    lastY = yPos;
+
+    GLfloat sensitive = 0.05f;
+    xoffset *= sensitive;
+    yoffset *= sensitive;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f){
+        pitch = 89.0f;
+    }
+    if (pitch < -89.0f){
+        pitch = -89.0f;
+    }
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    front.y = sin(glm::radians(pitch));
+    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraFront = glm::normalize(front);
+    std::cout << cameraFront.x << "," << cameraFront.y << "," << cameraFront.z << std::endl;
 }
