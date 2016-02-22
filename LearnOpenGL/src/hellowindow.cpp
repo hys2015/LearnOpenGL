@@ -21,6 +21,10 @@ GLfloat g_mixrate = 0.5;
 GLdouble oldtime;
 GLint nowtime;
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main()
@@ -233,12 +237,8 @@ int main()
                 angle *= glfwGetTime();
             }
             model = glm::rotate(model, glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-            GLfloat radius = 10.0f;
-            GLfloat cosR = cos(glfwGetTime()) * radius;
-            GLfloat sinR = sin(glfwGetTime()) * radius;
-            view = glm::lookAt(glm::vec3(sinR, 0.0f, cosR),
-                               glm::vec3(0.0f, 0.0f, 0.0f),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
+            
+            view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
             projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -265,25 +265,36 @@ int main()
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     std::cout << key << std::endl;
+    GLfloat cameraSpeed = 0.05f;
     if (action == GLFW_PRESS){
+    }
         switch(key)
         {
         case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-        case GLFW_KEY_UP:
-        case GLFW_KEY_W:
+        case GLFW_KEY_K:
             if (g_mixrate < 1.0){
                 g_mixrate += 0.1;
             }
             break;
-        case GLFW_KEY_DOWN:
-        case GLFW_KEY_S:
+        case GLFW_KEY_I:
             if (g_mixrate > 0.0){
                 g_mixrate -= 0.1;
             }
             break;
+        case GLFW_KEY_W:
+            cameraPos += cameraSpeed * cameraFront;
+            break;
+        case GLFW_KEY_S:
+            cameraPos -= cameraSpeed * cameraFront;
+            break;
+        case GLFW_KEY_A:
+            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            break;
+        case GLFW_KEY_D:
+            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            break;
         default:;
         }
-    }
 }
