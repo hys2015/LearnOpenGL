@@ -24,6 +24,9 @@ GLint nowtime;
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+bool keys[1024];
+
+void doMovement();
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -206,7 +209,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-
+        doMovement();
         //rendering command
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -265,8 +268,12 @@ int main()
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     std::cout << key << std::endl;
-    GLfloat cameraSpeed = 0.05f;
+    
     if (action == GLFW_PRESS){
+        keys[key] = GL_TRUE;
+    }
+    if (action == GLFW_RELEASE){
+        keys[key] = GL_FALSE;
     }
         switch(key)
         {
@@ -283,18 +290,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                 g_mixrate -= 0.1;
             }
             break;
-        case GLFW_KEY_W:
-            cameraPos += cameraSpeed * cameraFront;
-            break;
-        case GLFW_KEY_S:
-            cameraPos -= cameraSpeed * cameraFront;
-            break;
-        case GLFW_KEY_A:
-            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-            break;
-        case GLFW_KEY_D:
-            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-            break;
         default:;
         }
+}
+
+void doMovement(){
+    GLfloat cameraSpeed = 0.05f;
+    if (keys[GLFW_KEY_W]){
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (keys[GLFW_KEY_S]){
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (keys[GLFW_KEY_A]){
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    if (keys[GLFW_KEY_D]){
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
 }
