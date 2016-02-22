@@ -233,7 +233,12 @@ int main()
                 angle *= glfwGetTime();
             }
             model = glm::rotate(model, glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-            view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+            GLfloat radius = 10.0f;
+            GLfloat cosR = cos(glfwGetTime()) * radius;
+            GLfloat sinR = sin(glfwGetTime()) * radius;
+            view = glm::lookAt(glm::vec3(sinR, 0.0f, cosR),
+                               glm::vec3(0.0f, 0.0f, 0.0f),
+                               glm::vec3(0.0f, 1.0f, 0.0f));
             projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "view"), 1, GL_FALSE, glm::value_ptr(view));
