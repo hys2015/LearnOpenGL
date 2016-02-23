@@ -1,19 +1,21 @@
 //GLEW
 #define GLEW_STATIC
-
+#include <GL/glew.h>
 
 #include <shader.h>
-#include <SOIL/SOIL.h>
+#include "Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <GL/glew.h>
 //GLFW
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+
+
+#include <SOIL/SOIL.h>
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
@@ -22,9 +24,7 @@ GLdouble oldtime;
 GLint nowtime;
 
 //camera variable
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 bool keys[1024];
 
 //smooth the walkaround
@@ -33,11 +33,8 @@ GLfloat lastTime = 0.0f;
 
 //mouse related variable
 GLdouble lastX = 400.0f, lastY = 300.0f;
-GLfloat pitch = 0.0f , yaw = -90.0f;        //initial case unforgivable 
 GLboolean firstMouse = true;
 
-//zoom variable
-GLfloat fov = 45.0f;
 
 //functions declaration
 void doMovement();
@@ -265,8 +262,8 @@ int main()
             }
             model = glm::rotate(model, glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             
-            view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-            projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+            view = camera.GetViewMatrix();
+            projection = glm::perspective(camera.Zoom, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "view"), 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(glGetUniformLocation(shader.ProgramID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -319,18 +316,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 void doMovement(){
-    GLfloat cameraSpeed = 0.05f;
     if (keys[GLFW_KEY_W]){
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyBoard(FORWARD, deltaTime);
     }
     if (keys[GLFW_KEY_S]){
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyBoard(BACKWARD, deltaTime);
     }
     if (keys[GLFW_KEY_A]){
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyBoard(LEFT, deltaTime);
     }
     if (keys[GLFW_KEY_D]){
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyBoard(RIGHT, deltaTime);
     }
 }
 
@@ -340,42 +336,14 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos){
         lastY = yPos;
         firstMouse = false;
     }
-
     GLfloat xoffset = xPos - lastX;
-    GLfloat yoffset = lastY - yPos; // reserved since y-coordinates range from bottom to top
+    GLfloat yoffset = lastY - yPos;
+
     lastX = xPos;
     lastY = yPos;
-
-    GLfloat sensitive = 0.5f;
-    xoffset *= sensitive;
-    yoffset *= sensitive;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 89.0f){
-        pitch = 89.0f;
-    }
-    if (pitch < -89.0f){
-        pitch = -89.0f;
-    }
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = sin(glm::radians(pitch));
-    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    cameraFront = glm::normalize(front);
-    //std::cout << cameraFront.x << "," << cameraFront.y << "," << cameraFront.z << std::endl;
+    camera.ProcessMouseMovement( xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-    if (fov >= 1.0f && fov <= 45.0f){
-        fov -= yoffset;
-    }
-    if (fov <= 1.0f){
-        fov = 1.0f;
-    }
-    if (fov >= 45.0f){
-        fov = 45.0f;
-    }
+    camera.ProcessMouseScroll(yoffset);
 }
